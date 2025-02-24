@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eBay Auth Callback</title>
+</head>
+<body>
+    <div id="debug"></div>
+    <script>
+        function log(message) {
+            console.log(message);
+            document.getElementById('debug').innerHTML += message + '<br>';
+        }
+
+        log('Page loaded');
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        log('URL: ' + window.location.href);
+        log('Code: ' + code);
+        
+        if (code) {
+            const redirectUrl = `freyaapp://oauth2/callback?code=${encodeURIComponent(code)}`;
+            log('Redirecting to: ' + redirectUrl);
+            
+            // Try multiple approaches to redirect
+            window.location.href = redirectUrl;
+            window.location.replace(redirectUrl);
+            
+            // If still here after 1 second, show manual instructions
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <h3>Redirect failed</h3>
+                    <p>Please copy this code and return to the app:</p>
+                    <textarea onclick="this.select()">${code}</textarea>
+                    <p>Or click this link:</p>
+                    <a href="${redirectUrl}">Return to App</a>
+                `;
+            }, 1000);
+        } else {
+            log('No authorization code received');
+            document.body.innerHTML = `
+                <h3>Error</h3>
+                <p>No authorization code received from eBay.</p>
+                <p>URL Parameters:</p>
+                <pre>${JSON.stringify(Object.fromEntries(urlParams), null, 2)}</pre>
+            `;
+        }
+    </script>
+</body>
+</html>
