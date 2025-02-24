@@ -19,15 +19,37 @@
         log('Code received: ' + (code ? 'yes' : 'no'));
         
         if (code) {
-            // Keep the double slashes and ensure proper encoding
             const redirectUrl = `freyaapp://?code=${encodeURIComponent(code)}`;
             log('Attempting redirect to: ' + redirectUrl);
             
-            // Try multiple approaches to redirect
-            window.location.href = redirectUrl;
-            window.location.replace(redirectUrl);
+            // Try multiple redirect methods
+            try {
+                // Method 1: Direct location change
+                window.location.href = redirectUrl;
+                
+                // Method 2: Create and click a hidden link
+                const link = document.createElement('a');
+                link.href = redirectUrl;
+                link.click();
+                
+                // Method 3: Location replace
+                setTimeout(() => {
+                    window.location.replace(redirectUrl);
+                }, 100);
+                
+                // Method 4: iframe approach
+                setTimeout(() => {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = redirectUrl;
+                    document.body.appendChild(iframe);
+                }, 200);
+                
+            } catch (error) {
+                log('Redirect error: ' + error);
+            }
             
-            // If still here after 1 second, show manual instructions
+            // Show manual fallback after delay
             setTimeout(() => {
                 document.body.innerHTML = `
                     <h3>Redirect failed</h3>
@@ -35,8 +57,9 @@
                     <textarea onclick="this.select()">${code}</textarea>
                     <p>Or click this link:</p>
                     <a href="${redirectUrl}">Return to App</a>
+                    <p><small>Debug info: ${navigator.userAgent}</small></p>
                 `;
-            }, 1000);
+            }, 1500);
         } else {
             log('No authorization code received');
             document.body.innerHTML = `
