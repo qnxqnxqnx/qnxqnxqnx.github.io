@@ -19,7 +19,7 @@
         log('Code: ' + code);
         
         if (code) {
-            const redirectUrl = `freyaapp://oauth2/callback?code=${encodeURIComponent(code)}`;
+            const redirectUrl = `freyaapp://?code=${encodeURIComponent(code)}`;
             log('Redirecting to: ' + redirectUrl);
             
             // Try multiple approaches to redirect
