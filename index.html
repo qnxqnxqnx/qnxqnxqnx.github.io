@@ -8,34 +8,35 @@
     <script>
         function log(message) {
             console.log(message);
-            document.getElementById('debug').innerHTML += message + '<br>';
+            document.getElementById('debug').innerHTML += `${new Date().toISOString()}: ${message}<br>`;
         }
 
         log('Page loaded');
+        log('User Agent: ' + navigator.userAgent);
         const urlParams = new URLSearchParams(window.location.search);
+        log('Full URL: ' + window.location.href);
         const code = urlParams.get('code');
-        
-        log('URL: ' + window.location.href);
-        log('Code: ' + code);
+        log('Code received: ' + (code ? 'yes' : 'no'));
         
         if (code) {
             const redirectUrl = `freyaapp://?code=${encodeURIComponent(code)}`;
-            log('Redirecting to: ' + redirectUrl);
+            log('Attempting redirect to: ' + redirectUrl);
             
-            // Try multiple approaches to redirect
-            window.location.href = redirectUrl;
-            window.location.replace(redirectUrl);
-            
-            // If still here after 1 second, show manual instructions
-            setTimeout(() => {
-                document.body.innerHTML = `
-                    <h3>Redirect failed</h3>
-                    <p>Please copy this code and return to the app:</p>
-                    <textarea onclick="this.select()">${code}</textarea>
-                    <p>Or click this link:</p>
-                    <a href="${redirectUrl}">Return to App</a>
-                `;
-            }, 1000);
+            // Try redirect with a promise
+            Promise.race([
+                new Promise(resolve => {
+                    window.location.href = redirectUrl;
+                    log('Tried window.location.href');
+                    setTimeout(resolve, 100);
+                }),
+                new Promise(resolve => {
+                    window.location.replace(redirectUrl);
+                    log('Tried window.location.replace');
+                    setTimeout(resolve, 100);
+                })
+            ]).then(() => {
+                log('Redirect attempts completed');
+            });
         } else {
             log('No authorization code received');
             document.body.innerHTML = `
