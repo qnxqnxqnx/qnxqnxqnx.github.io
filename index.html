@@ -19,7 +19,7 @@
         log('Code received: ' + (code ? 'yes' : 'no'));
         
         if (code) {
-            const redirectUrl = `freyaapp://?code=${encodeURIComponent(code)}`;
+            const redirectUrl = `freyaapp:?code=${encodeURIComponent(code)}`;
             log('Attempting redirect to: ' + redirectUrl);
             
             // Try redirect with a promise
